@@ -82,7 +82,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
   // Auto-hide after 10 seconds
   setTimeout(() => {
     if (document.body.contains(installButton)) {
-      installButton.remove();
+      Button.remove();
     }
   }, 10000);
 });
