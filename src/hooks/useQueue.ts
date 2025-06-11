@@ -137,8 +137,22 @@ export const useQueue = () => {
       'Customer Name': customer.name,
       'Phone Number': customer.phoneNumber,
       'Device/Equipment': customer.device,
-      'Check-in Time': customer.checkedInAt.toLocaleString('en-GB'),
-      'Called Time': customer.calledAt ? customer.calledAt.toLocaleString('en-GB') : 'Not called yet',
+      'Check-in Time': customer.checkedInAt.toLocaleString('en-GB', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      }),
+      'Called Time': customer.calledAt ? customer.calledAt.toLocaleString('en-GB', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      }) : 'Not called yet',
       'Wait Duration (minutes)': customer.calledAt 
         ? Math.round((customer.calledAt.getTime() - customer.checkedInAt.getTime()) / 60000)
         : Math.round((new Date().getTime() - customer.checkedInAt.getTime()) / 60000),
@@ -163,7 +177,14 @@ export const useQueue = () => {
     ws['!cols'] = colWidths;
 
     // Add title row
-    const today = new Date().toLocaleDateString('en-GB');
+    const today = new Date().toLocaleString('en-GB', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
     const titleData = [
       ['BT Repair Centre - Recently Called Customers'],
       [`Export Date: ${today}`],

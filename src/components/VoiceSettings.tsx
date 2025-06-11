@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings, Volume2, VolumeX, Play } from 'lucide-react';
+import { Settings, Play, RotateCcw } from 'lucide-react';
 import { useVoice } from '../hooks/useVoice';
 
 interface VoiceSettingsProps {
@@ -34,8 +34,16 @@ export const VoiceSettings: React.FC<VoiceSettingsProps> = ({ isOpen, onClose })
     setSettings({ ...settings, pitch });
   };
 
-  const toggleVoice = () => {
-    setSettings({ ...settings, enabled: !settings.enabled });
+  const resetToDefaults = () => {
+    const defaultSettings = {
+      enabled: true,
+      volume: 0.9,
+      rate: 0.85,
+      pitch: 1.1,
+      voice: 'auto'
+    };
+    setSettings(defaultSettings);
+    setSelectedVoice('');
   };
 
   if (!isOpen) return null;
@@ -61,7 +69,7 @@ export const VoiceSettings: React.FC<VoiceSettingsProps> = ({ isOpen, onClose })
 
           <div className="space-y-6">
             {/* Voice Enable/Disable */}
-            <div className="flex items-center justify-between">
+            {/* <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {settings.enabled ? (
                   <Volume2 className="w-5 h-5 text-green-600" />
@@ -82,7 +90,7 @@ export const VoiceSettings: React.FC<VoiceSettingsProps> = ({ isOpen, onClose })
                   }`}
                 />
               </button>
-            </div>
+            </div> */}
 
             {settings.enabled && (
               <>
@@ -179,6 +187,15 @@ export const VoiceSettings: React.FC<VoiceSettingsProps> = ({ isOpen, onClose })
                   <Play className="w-4 h-4" />
                   Test Voice
                 </button>
+
+                {/* Reset to Defaults */}
+                <button
+                  onClick={resetToDefaults}
+                  className="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Reset to Defaults
+                </button>
               </>
             )}
           </div>
@@ -193,6 +210,7 @@ export const VoiceSettings: React.FC<VoiceSettingsProps> = ({ isOpen, onClose })
                 <li>• Microsoft voices are also high quality</li>
                 <li>• System voices may vary by device</li>
                 <li>• Slower speeds often sound more professional</li>
+                <li>• Use "Reset to Defaults" for optimal settings</li>
               </ul>
             </div>
           </div>

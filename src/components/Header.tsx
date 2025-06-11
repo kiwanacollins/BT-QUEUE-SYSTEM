@@ -113,7 +113,7 @@ export const Header: React.FC<HeaderProps> = ({ onClearQueue, onExportExcel }) =
                 title="Clear entire queue including recently called customers"
               >
                 <Trash2 className="w-4 h-4" />
-                <span className="font-medium">Clear Queue</span>
+                <span className="font-medium">Clear Recently Called</span>
               </button>
             </div>
           </div>

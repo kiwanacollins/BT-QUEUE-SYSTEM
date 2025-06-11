@@ -16,8 +16,8 @@ The exported Excel file includes:
 - **Customer Name** - Full name of the customer
 - **Phone Number** - Contact information
 - **Device/Equipment** - What they brought for repair
-- **Check-in Time** - When they joined the queue
-- **Called Time** - When they were called for service
+- **Check-in Time** - When they joined the queue (12-hour format)
+- **Called Time** - When they were called for service (12-hour format)
 - **Wait Duration** - How long they waited (in minutes)
 - **Status** - Current status (Called/Completed)
 
