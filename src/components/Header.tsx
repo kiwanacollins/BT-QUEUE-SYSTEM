@@ -89,7 +89,7 @@ export const Header: React.FC<HeaderProps> = ({ onClearQueue, onExportExcel }) =
               )}
 
               {/* Install App */}
-              {/* {isInstallable && (
+              {isInstallable && (
                 <button
                   onClick={installApp}
                   className="flex items-center gap-2 px-3 py-2 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded-lg text-sm transition-colors"
@@ -98,17 +98,17 @@ export const Header: React.FC<HeaderProps> = ({ onClearQueue, onExportExcel }) =
                   <Smartphone className="w-4 h-4" />
                   <span className="font-medium">Install</span>
                 </button>
-              )} */}
+              )}
 
               {/* Voice Settings */}
-              {/* <button
+              <button
                 onClick={() => setShowVoiceSettings(true)}
                 className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-all duration-200"
                 title="Voice settings"
               >
                 <Settings className="w-4 h-4" />
                 <span className="font-medium">Settings</span>
-              </button> */}
+              </button>
 
               <button
                 onClick={onExportExcel}
