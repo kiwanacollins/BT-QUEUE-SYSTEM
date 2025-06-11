@@ -46,6 +46,9 @@ export const useVoice = () => {
   const getBestVoice = useCallback(() => {
     if (!synthesis || availableVoices.length === 0) return null;
 
+    // Debug: log all available voices
+    console.log('All available voices:', availableVoices.map(v => `${v.name} (${v.lang})`));
+
     // Preferred female voice names (more natural sounding)
     const preferredFemaleVoices = [
       // High quality female voices only
@@ -65,7 +68,10 @@ export const useVoice = () => {
       const voice = availableVoices.find(v => 
         v.name.includes(preferredName)
       );
-      if (voice) return voice;
+      if (voice) {
+        console.log('Found preferred female voice:', voice.name);
+        return voice;
+      }
     }
 
     // Then try to find any high-quality UK/GB female voice
@@ -73,40 +79,51 @@ export const useVoice = () => {
       (voice.lang.includes('en-GB') || voice.lang.includes('en-UK')) &&
       !voice.name.toLowerCase().includes('compact') &&
       !voice.name.toLowerCase().includes('enhanced') &&
-      (voice.name.toLowerCase().includes('female') || 
-       voice.name.toLowerCase().includes('woman') ||
-       !voice.name.toLowerCase().includes('male'))
+      !isMaleVoice(voice.name)
     );
-    if (ukFemaleVoice) return ukFemaleVoice;
+    if (ukFemaleVoice) {
+      console.log('Found UK female voice:', ukFemaleVoice.name);
+      return ukFemaleVoice;
+    }
 
     // Fallback to any English female voice that sounds natural
     const englishFemaleVoice = availableVoices.find(voice => 
       voice.lang.startsWith('en') && 
       !voice.name.toLowerCase().includes('compact') &&
       (voice.name.includes('Google') || voice.name.includes('Microsoft') || voice.name.includes('System')) &&
-      (voice.name.toLowerCase().includes('female') || 
-       voice.name.toLowerCase().includes('woman') ||
-       (!voice.name.toLowerCase().includes('male') && 
-        (voice.name.includes('Samantha') || voice.name.includes('Victoria') || 
-         voice.name.includes('Karen') || voice.name.includes('Fiona') || 
-         voice.name.includes('Kate') || voice.name.includes('Serena') || 
-         voice.name.includes('Ava') || voice.name.includes('Allison') ||
-         voice.name.includes('Hazel') || voice.name.includes('Zira'))))
+      !isMaleVoice(voice.name)
     );
-    if (englishFemaleVoice) return englishFemaleVoice;
+    if (englishFemaleVoice) {
+      console.log('Found English female voice:', englishFemaleVoice.name);
+      return englishFemaleVoice;
+    }
 
-    // Last resort - any English voice that's likely female (exclude obvious male names)
+    // Last resort - any English voice that's likely female
     const anyFemaleVoice = availableVoices.find(voice => 
       voice.lang.startsWith('en') && 
-      !voice.name.toLowerCase().includes('male') &&
-      !voice.name.toLowerCase().includes('david') &&
-      !voice.name.toLowerCase().includes('mark') &&
-      !voice.name.toLowerCase().includes('alex') &&
-      !voice.name.toLowerCase().includes('daniel')
+      !isMaleVoice(voice.name)
     );
+    
+    if (anyFemaleVoice) {
+      console.log('Found fallback female voice:', anyFemaleVoice.name);
+    } else {
+      console.log('No suitable female voice found');
+    }
     
     return anyFemaleVoice || null;
   }, [synthesis, availableVoices]);
+
+  // Helper function to identify male voices
+  const isMaleVoice = (voiceName: string): boolean => {
+    const lowerName = voiceName.toLowerCase();
+    const maleIndicators = [
+      'male', 'man', 'david', 'mark', 'alex', 'daniel', 'tom', 'mike', 'john', 
+      'james', 'robert', 'william', 'richard', 'christopher', 'matthew', 'anthony',
+      'microsoft david', 'microsoft mark', 'microsoft alex'
+    ];
+    
+    return maleIndicators.some(indicator => lowerName.includes(indicator));
+  };
 
   const speak = useCallback((text: string, priority: 'normal' | 'high' = 'normal') => {
     if (!synthesis || !settings.enabled) return;
@@ -122,10 +139,13 @@ export const useVoice = () => {
     utterance.pitch = settings.pitch;
     utterance.lang = 'en-GB';
 
-    // Use the best available voice
+    // Always use the best available female voice
     const bestVoice = getBestVoice();
     if (bestVoice) {
       utterance.voice = bestVoice;
+      console.log('Using voice for speech:', bestVoice.name, bestVoice.lang);
+    } else {
+      console.log('No suitable female voice found, using default');
     }
 
     // Add some natural pauses for better speech flow
@@ -144,8 +164,27 @@ export const useVoice = () => {
       console.error('Speech synthesis error:', event.error);
     };
 
+    // Ensure voices are loaded before speaking
+    if (availableVoices.length === 0) {
+      // Trigger voice loading and retry after a short delay
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        setAvailableVoices(voices);
+        // Retry with voices loaded
+        setTimeout(() => {
+          const retryBestVoice = getBestVoice();
+          if (retryBestVoice) {
+            utterance.voice = retryBestVoice;
+            console.log('Retry - Using voice for speech:', retryBestVoice.name, retryBestVoice.lang);
+          }
+          synthesis.speak(utterance);
+        }, 100);
+        return;
+      }
+    }
+
     synthesis.speak(utterance);
-  }, [synthesis, settings, getBestVoice]);
+  }, [synthesis, settings, getBestVoice, availableVoices]);
 
   const startListening = useCallback((onResult: (text: string) => void) => {
     if (!recognition) return;
