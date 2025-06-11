@@ -19,7 +19,23 @@ export const VoiceSettings: React.FC<VoiceSettingsProps> = ({ isOpen, onClose })
   }, [availableVoices, getBestVoice]);
 
   const testVoice = () => {
-    speak("Hello, this is how I will sound when making announcements in the BT Queue System.", 'normal');
+    // Force use of the best female voice for testing
+    const bestVoice = getBestVoice();
+    if (bestVoice && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel(); // Cancel any ongoing speech
+      
+      const utterance = new SpeechSynthesisUtterance("Hello, this is how I will sound when making announcements");
+      utterance.voice = bestVoice;
+      utterance.volume = settings.volume;
+      utterance.rate = settings.rate;
+      utterance.pitch = settings.pitch;
+      utterance.lang = 'en-GB';
+      
+      window.speechSynthesis.speak(utterance);
+    } else {
+      // Fallback to regular speak function
+      speak("Hello, this is how I will sound when making announcements in the BT Queue System.", 'normal');
+    }
   };
 
   const handleVolumeChange = (volume: number) => {

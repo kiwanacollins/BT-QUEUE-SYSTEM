@@ -28,9 +28,21 @@ export const Header: React.FC<HeaderProps> = ({ onClearQueue, onExportExcel }) =
             <div className="flex items-center gap-4">
               <div className="bg-white p-2 rounded-lg shadow-sm">
                 <img 
-                  src="../public/images/logo.png" 
+                  src="/images/logo.png" 
                   alt="BT Repair Centre Logo" 
                   className="w-14 h-14 object-contain"
+                  onError={(e) => {
+                    // Replace with text logo if image fails
+                    const target = e.target as HTMLImageElement;
+                    const parent = target.parentElement;
+                    if (parent) {
+                      parent.innerHTML = `
+                        <div class="w-14 h-14 bg-purple-600 text-white rounded-lg flex items-center justify-center font-bold text-lg">
+                          BT
+                        </div>
+                      `;
+                    }
+                  }}
                 />
               </div>
               <div>
