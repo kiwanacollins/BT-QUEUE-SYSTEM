@@ -19,22 +19,58 @@ export const VoiceSettings: React.FC<VoiceSettingsProps> = ({ isOpen, onClose })
   }, [availableVoices, getBestVoice]);
 
   const testVoice = () => {
-    // Force use of the best female voice for testing
-    const bestVoice = getBestVoice();
-    if (bestVoice && 'speechSynthesis' in window) {
+    if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel(); // Cancel any ongoing speech
       
-      const utterance = new SpeechSynthesisUtterance("Hello, this is how I will sound when making announcements");
-      utterance.voice = bestVoice;
+      // Get the best female voice
+      const bestFemaleVoice = getBestVoice();
+      
+      // Additional filtering to ensure it's female
+      const femaleVoices = availableVoices.filter(voice => 
+        voice.lang.startsWith('en') &&
+        // Strict female filtering
+        (voice.name.toLowerCase().includes('female') || 
+         voice.name.toLowerCase().includes('woman') ||
+         voice.name.includes('Samantha') || voice.name.includes('Victoria') || 
+         voice.name.includes('Karen') || voice.name.includes('Fiona') || 
+         voice.name.includes('Kate') || voice.name.includes('Serena') || 
+         voice.name.includes('Ava') || voice.name.includes('Allison') ||
+         voice.name.includes('Hazel') || voice.name.includes('Zira') ||
+         voice.name.includes('Moira')) &&
+        // Exclude obvious male voices
+        !voice.name.toLowerCase().includes('male') &&
+        !voice.name.toLowerCase().includes('david') &&
+        !voice.name.toLowerCase().includes('mark') &&
+        !voice.name.toLowerCase().includes('alex') &&
+        !voice.name.toLowerCase().includes('daniel')
+      );
+      
+      // Use the first female voice from our filtered list, or the best voice as fallback
+      const voiceToUse = femaleVoices[0] || bestFemaleVoice;
+      
+      console.log('Available female voices:', femaleVoices.map(v => v.name));
+      console.log('Using voice for test:', voiceToUse?.name);
+      
+      const utterance = new SpeechSynthesisUtterance("Hello, this is how I will sound when making announcements for the BT repair queue system.");
+      
+      if (voiceToUse) {
+        utterance.voice = voiceToUse;
+      }
+      
       utterance.volume = settings.volume;
       utterance.rate = settings.rate;
       utterance.pitch = settings.pitch;
       utterance.lang = 'en-GB';
       
+      // Error handling
+      utterance.onerror = (event) => {
+        console.error('Speech synthesis error:', event.error);
+        alert('Voice test failed. Please try a different voice.');
+      };
+      
       window.speechSynthesis.speak(utterance);
     } else {
-      // Fallback to regular speak function
-      speak("Hello, this is how I will sound when making announcements in the BT Queue System.", 'normal');
+      alert('Speech synthesis is not supported in this browser.');
     }
   };
 
