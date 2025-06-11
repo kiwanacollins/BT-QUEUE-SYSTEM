@@ -68,24 +68,6 @@ function App() {
           </div>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-16">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <p className="text-gray-600">
-              © 2025 BT Group. Repair Centre Management System v1.0
-            </p>
-            <div className="flex items-center gap-4 text-sm text-gray-500">
-              <span>System Status: Online</span>
-              <span>•</span>
-              <span>Data: Stored Locally</span>
-              <span>•</span>
-              <span>Voice: {isVoiceAvailable ? 'Available' : 'Unavailable'}</span>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -64,15 +64,7 @@ export const Statistics: React.FC<StatisticsProps> = ({ stats }) => {
         })}
       </div>
 
-      <div className="mt-6 pt-6 border-t border-gray-100">
-        <div className="flex items-center justify-between text-sm text-gray-600">
-          <span>Last updated: {new Date().toLocaleTimeString('en-US', { hour12: true })}</span>
-          <span className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            Live updates enabled
-          </span>
-        </div>
-      </div>
+      
     </div>
   );
 };

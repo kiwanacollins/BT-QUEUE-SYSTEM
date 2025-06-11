@@ -1,5 +1,5 @@
 import React from 'react';
-import { Headphones, Download, Trash2 } from 'lucide-react';
+import { Download, Trash2 } from 'lucide-react';
 
 interface HeaderProps {
   onExportData: () => void;
@@ -18,8 +18,12 @@ export const Header: React.FC<HeaderProps> = ({ onExportData, onClearQueue }) =>
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="bg-purple-600 p-2 rounded-lg">
-              <Headphones className="w-6 h-6 text-white" />
+            <div className="bg-white p-2 rounded-lg shadow-sm">
+              <img 
+                src="../public/images/logo.png" 
+                alt="BT Repair Centre Logo" 
+                className="w-14 h-14 object-contain"
+              />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">BT Repair Centre</h1>
