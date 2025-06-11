@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>localStorage Debug</title>
+</head>
+<body>
+    <h1>localStorage Debug Tool</h1>
+    <button onclick="showData()">Show localStorage Data</button>
+    <button onclick="clearData()">Clear localStorage</button>
+    <pre id="output"></pre>
+
+    <script>
+        function showData() {
+            const queueData = localStorage.getItem('bt-repair-queue');
+            const statsData = localStorage.getItem('bt-repair-stats');
+            
+            const output = document.getElementById('output');
+            output.textContent = `
+Queue Data:
+${queueData || 'null'}
+
+Stats Data:
+${statsData || 'null'}
+
+Parsed Queue Data:
+${queueData ? JSON.stringify(JSON.parse(queueData), null, 2) : 'null'}
+            `;
+        }
+        
+        function clearData() {
+            localStorage.removeItem('bt-repair-queue');
+            localStorage.removeItem('bt-repair-stats');
+            alert('localStorage cleared');
+        }
+        
+        // Show data on load
+        showData();
+    </script>
+</body>
+</html>
