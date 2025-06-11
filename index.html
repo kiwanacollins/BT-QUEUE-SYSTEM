@@ -7,8 +7,50 @@
     <title>BT Repair Centre - Queue Management System</title>
     <meta name="description" content="Professional queue management system for BT repair centres with voice control and offline functionality" />
     <meta name="theme-color" content="#6B46C1" />
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="BT Queue" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="BT Queue" />
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
+    
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
+    <meta name="msapplication-TileColor" content="#6B46C1" />
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/src/main.tsx" as="script" />
+    
+    <!-- Offline fallback -->
+    <style>
+      .offline-indicator {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: #f59e0b;
+        color: white;
+        text-align: center;
+        padding: 8px;
+        transform: translateY(-100%);
+        transition: transform 0.3s ease;
+        z-index: 9999;
+      }
+      .offline-indicator.show {
+        transform: translateY(0);
+      }
+    </style>
   </head>
   <body>
+    <div id="offline-indicator" class="offline-indicator">
+      📱 You're offline. The app will sync when you're back online.
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

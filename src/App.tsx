@@ -5,6 +5,7 @@ import { QueueDashboard } from './components/QueueDashboard';
 import { Statistics } from './components/Statistics';
 import { useQueue } from './hooks/useQueue';
 import { useVoice } from './hooks/useVoice';
+import { usePWA } from './hooks/usePWA';
 
 function App() {
   const {
@@ -14,7 +15,7 @@ function App() {
     callCustomer,
     removeCustomer,
     clearQueue,
-    exportData
+    exportCalledCustomersToExcel
   } = useQueue();
 
   const {
@@ -23,27 +24,53 @@ function App() {
     settings
   } = useVoice();
 
+  const { syncWhenOnline } = usePWA();
+
   // Initialize voice announcement
   useEffect(() => {
     if (isVoiceAvailable && settings.enabled) {
-      // speak("BT Repair Centre Management System ready. Voice controls are active.", 'normal');
+      // speak("BT Queue Management System is ready. Voice announcements are active.", 'normal');
     }
   }, [isVoiceAvailable, settings.enabled, speak]);
 
   const handleCheckIn = useCallback((name: string, device: string, phoneNumber: string) => {
     const customer = addCustomer(name, device, phoneNumber);
+    
     console.log('Customer added:', customer);
   }, [addCustomer]);
 
   const handleVoiceAnnouncement = useCallback((text: string) => {
     if (settings.enabled) {
-      speak(text, 'high');
+      // Enhanced voice announcements with better pacing
+      const enhancedText = text
+        .replace(/(\d+)/g, ' $1 ') // Add spaces around numbers
+        .replace(/([.!?])/g, '$1 ') // Add pause after punctuation
+        .trim();
+      
+      speak(enhancedText, 'high');
     }
   }, [speak, settings.enabled]);
 
+  // Handle offline queue sync
+  useEffect(() => {
+    const handleQueueSync = () => {
+      syncWhenOnline(async () => {
+        // This would sync with a backend if available
+        console.log('Syncing queue data with server...');
+        // For now, just log the action
+      });
+    };
+
+    window.addEventListener('queue-sync-needed', handleQueueSync);
+    return () => window.removeEventListener('queue-sync-needed', handleQueueSync);
+  }, [syncWhenOnline]);
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onExportData={exportData} onClearQueue={clearQueue} />
+      <Header 
+        onClearQueue={clearQueue}
+        onExportExcel={exportCalledCustomersToExcel}
+      />
       
       <main className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

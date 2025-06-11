@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Customer, QueueStats } from '../types';
+import * as XLSX from 'xlsx';
 
 const STORAGE_KEY = 'bt-repair-queue';
 const STATS_KEY = 'bt-repair-stats';
@@ -26,7 +27,7 @@ export const useQueue = () => {
         try {
           const parsedQueue = JSON.parse(savedQueue);
           console.log('Parsed queue data:', parsedQueue);
-          const customersWithDates = parsedQueue.map((customer: any) => ({
+          const customersWithDates = parsedQueue.map((customer: Customer) => ({
             ...customer,
             checkedInAt: new Date(customer.checkedInAt),
             calledAt: customer.calledAt ? new Date(customer.calledAt) : undefined
@@ -117,28 +118,80 @@ export const useQueue = () => {
   }, [customers]);
 
   const clearQueue = useCallback(() => {
-    // Only clear waiting customers, keep called customers
-    setCustomers(prev => prev.filter(customer => customer.status === 'called'));
+    // Clear all customers including recently called
+    setCustomers([]);
   }, []);
 
-  const exportData = useCallback(() => {
-    const data = {
-      customers,
-      stats,
-      exportedAt: new Date().toISOString(),
-      date: new Date().toLocaleDateString('en-GB')
-    };
+  const exportCalledCustomersToExcel = useCallback(() => {
+    // Get only called customers
+    const calledCustomers = customers.filter(customer => customer.status === 'called');
+    
+    if (calledCustomers.length === 0) {
+      alert('No called customers to export.');
+      return;
+    }
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `bt-repair-queue-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, [customers, stats]);
+    // Prepare data for Excel
+    const excelData = calledCustomers.map((customer, index) => ({
+      'No.': index + 1,
+      'Customer Name': customer.name,
+      'Phone Number': customer.phoneNumber,
+      'Device/Equipment': customer.device,
+      'Check-in Time': customer.checkedInAt.toLocaleString('en-GB'),
+      'Called Time': customer.calledAt ? customer.calledAt.toLocaleString('en-GB') : 'Not called yet',
+      'Wait Duration (minutes)': customer.calledAt 
+        ? Math.round((customer.calledAt.getTime() - customer.checkedInAt.getTime()) / 60000)
+        : Math.round((new Date().getTime() - customer.checkedInAt.getTime()) / 60000),
+      'Status': customer.status.charAt(0).toUpperCase() + customer.status.slice(1)
+    }));
+
+    // Create workbook and worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(excelData);
+
+    // Set column widths
+    const colWidths = [
+      { wch: 5 },   // No.
+      { wch: 20 },  // Customer Name
+      { wch: 15 },  // Phone Number
+      { wch: 25 },  // Device/Equipment
+      { wch: 20 },  // Check-in Time
+      { wch: 20 },  // Called Time
+      { wch: 18 },  // Wait Duration
+      { wch: 12 }   // Status
+    ];
+    ws['!cols'] = colWidths;
+
+    // Add title row
+    const today = new Date().toLocaleDateString('en-GB');
+    const titleData = [
+      ['BT Repair Centre - Recently Called Customers'],
+      [`Export Date: ${today}`],
+      [`Total Called Customers: ${calledCustomers.length}`],
+      [] // Empty row before headers
+    ];
+
+    // Insert title rows at the beginning
+    XLSX.utils.sheet_add_aoa(ws, titleData, { origin: 'A1' });
+    XLSX.utils.sheet_add_json(ws, excelData, { origin: 'A5', skipHeader: false });
+
+    // Style the title (if supported)
+    if (ws['A1']) {
+      ws['A1'].s = {
+        font: { bold: true, sz: 14 },
+        alignment: { horizontal: 'center' }
+      };
+    }
+
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Called Customers');
+
+    // Generate filename with current date
+    const filename = `BT-Called-Customers-${new Date().toISOString().split('T')[0]}.xlsx`;
+
+    // Write and download the file
+    XLSX.writeFile(wb, filename);
+  }, [customers]);
 
   return {
     customers,
@@ -149,6 +202,6 @@ export const useQueue = () => {
     completeCustomer,
     getNextCustomer,
     clearQueue,
-    exportData
+    exportCalledCustomersToExcel
   };
 };
