@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Phone, CheckCircle, Clock } from 'lucide-react';
+import { Users, Phone, Clock } from 'lucide-react';
 import { QueueStats } from '../types';
 
 interface StatisticsProps {
