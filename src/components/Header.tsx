@@ -89,15 +89,18 @@ export const Header: React.FC<HeaderProps> = ({ onClearQueue, onExportExcel }) =
               )}
 
               {/* Install App */}
+
               {isInstallable && (
+                
                 <button
                   onClick={installApp}
                   className="flex items-center gap-2 px-3 py-2 bg-purple-50 text-purple-700 hover:bg-purple-100 rounded-lg text-sm transition-colors"
                   title="Install as app"
                 >
-                  <Smartphone className="w-4 h-4" />
-                  <span className="font-medium">Install</span>
+                  {/* <Smartphone className="w-4 h-4" />
+                  <span className="font-medium">Install</span> */}
                 </button>
+
               )}
 
               {/* Voice Settings */}
