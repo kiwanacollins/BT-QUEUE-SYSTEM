@@ -6,6 +6,7 @@ const STATS_KEY = 'bt-repair-stats';
 
 export const useQueue = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [stats, setStats] = useState<QueueStats>({
     waiting: 0,
     called: 0,
@@ -19,14 +20,18 @@ export const useQueue = () => {
       const savedQueue = localStorage.getItem(STORAGE_KEY);
       const savedStats = localStorage.getItem(STATS_KEY);
 
+      console.log('Loading from localStorage:', savedQueue);
+
       if (savedQueue) {
         try {
           const parsedQueue = JSON.parse(savedQueue);
+          console.log('Parsed queue data:', parsedQueue);
           const customersWithDates = parsedQueue.map((customer: any) => ({
             ...customer,
             checkedInAt: new Date(customer.checkedInAt),
             calledAt: customer.calledAt ? new Date(customer.calledAt) : undefined
           }));
+          console.log('Customers with dates:', customersWithDates);
           setCustomers(customersWithDates);
         } catch (error) {
           console.error('Error loading queue from storage:', error);
@@ -40,16 +45,20 @@ export const useQueue = () => {
           console.error('Error loading stats from storage:', error);
         }
       }
+      
+      // Mark as initialized after loading
+      setIsInitialized(true);
     };
 
     // Load immediately
     loadData();
   }, []);
 
-  // Save to localStorage whenever customers change (but not on initial load)
+  // Save to localStorage whenever customers change (but only after initialization)
   useEffect(() => {
-    // Skip saving on the very first render when customers is empty array from initialization
-    if (customers.length > 0 || localStorage.getItem(STORAGE_KEY)) {
+    if (isInitialized) {
+      console.log('Saving customers to localStorage:', customers);
+      // Always save the current state to localStorage
       localStorage.setItem(STORAGE_KEY, JSON.stringify(customers));
       
       // Update stats
@@ -63,7 +72,7 @@ export const useQueue = () => {
       setStats(newStats);
       localStorage.setItem(STATS_KEY, JSON.stringify(newStats));
     }
-  }, [customers]);
+  }, [customers, isInitialized]);
 
   const addCustomer = useCallback((name: string, device: string, phoneNumber: string): Customer => {
     const newCustomer: Customer = {

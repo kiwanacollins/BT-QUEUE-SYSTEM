@@ -27,15 +27,6 @@ export const Statistics: React.FC<StatisticsProps> = ({ stats }) => {
       valueColor: 'text-blue-700'
     },
     {
-      title: 'Completed Today',
-      value: stats.completed,
-      icon: CheckCircle,
-      color: 'purple',
-      bgColor: 'bg-purple-50',
-      iconColor: 'text-purple-600',
-      valueColor: 'text-purple-700'
-    },
-    {
       title: 'Total Today',
       value: stats.totalToday,
       icon: Clock,

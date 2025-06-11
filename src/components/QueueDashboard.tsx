@@ -17,6 +17,10 @@ export const QueueDashboard: React.FC<QueueDashboardProps> = ({
 }) => {
   const waitingCustomers = customers.filter(c => c.status === 'waiting');
   const calledCustomers = customers.filter(c => c.status === 'called');
+  
+  console.log('QueueDashboard - All customers:', customers);
+  console.log('QueueDashboard - Called customers:', calledCustomers);
+  console.log('QueueDashboard - Waiting customers:', waitingCustomers);
 
   const handleCallCustomer = (customer: Customer) => {
     onCallCustomer(customer.id);
